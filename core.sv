@@ -21,6 +21,8 @@ reg [15:0] lft_sum_out_buf, rht_sum_out_buf;
 
 /**** LEFT CHANNEL****/
 
+//  write new input to low frequency queue at every alternate rising edge of valid 
+
 queue1024 lft_q1024(.clk(clk),
                     .rst_n(rst_n),
                     .new_smpl(lft_in),
@@ -28,7 +30,9 @@ queue1024 lft_q1024(.clk(clk),
                     .wrt_smpl(wrt_en & wrt_sig),
                     .sequencing(lft_seq_1024)
                     );
-queue1024 lft_q1536(.clk(clk),
+
+// write new input to High frequency queue at rising edge of valid 
+queue1536 lft_q1536(.clk(clk),
                     .rst_n(rst_n),
                     .new_smpl(lft_in),
                     .smpl_out(lft_q1536_out),
@@ -100,7 +104,9 @@ queue1024 rht_q1024(.clk(clk),
                     .wrt_smpl(wrt_en & wrt_sig),
                     .sequencing(rht_seq_1024)
                     );
-queue1024 rht_q1536(.clk(clk),
+
+// queue should be 1536
+queue1024 rht_q1536(.clk(clk),																	
                     .rst_n(rst_n),
                     .new_smpl(rht_in),
                     .smpl_out(rht_q1536_out),
@@ -206,12 +212,16 @@ always @(posedge clk, negedge rst_n) begin
         valid_d <= valid;
 end
 
-always @(posedge clk, negedge rst_n) begin
+
+// generate  pulse for one clock cycle on rising edge of valid
+always @(posedge clk, negedge rst_n) begin                      
     if(!rst_n)
         wrt_sig <= 1'b0;
     else
         wrt_sig <= valid & ~valid_d;
 end
+
+
 
 always @(posedge clk, negedge rst_n) begin
     if(!rst_n)
