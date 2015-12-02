@@ -7,144 +7,137 @@ output reg [15:0] smpl_out;
 
 reg [10:0] old_ptr, new_ptr, read_ptr, end_ptr;
 reg [15:0] ram_rdata, ram_wdata;
-reg we, readout_done;
+reg write_en, readout_done;
 logic inc_new, inc_old, readout, wr_data;
 
 typedef enum reg [1:0] {IDLE, WAIT, FULL, READOUT} state;
 state st, nxt_st;
 
-dualPort1536x16 ram(.clk(clk) ,.we(we) ,.waddr(new_ptr) ,.raddr(read_ptr) ,.wdata(ram_wdata) ,.rdata(ram_rdata));
+//Circular RAM Queue
+dualPort1536x16 ram(.clk(clk) ,.we(write_en) ,.waddr(new_ptr) ,.raddr(read_ptr) ,.wdata(ram_wdata) ,.rdata(ram_rdata));
 
 //write ptr
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        new_ptr <= 1535; //so that the first entry is written to location 0
-    end else begin
-        if (inc_new) begin
-            new_ptr <= (new_ptr + 1)%1536;
-        end
-    end
-end
+always @(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    new_ptr <= 1535; //so that the first entry is written to location 0
+  else if (inc_new) 
+    new_ptr <= (new_ptr + 1)%1536;
 
 //old ptr (start of readout)
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        old_ptr <= 11'b0;
-    end else begin
-        if(inc_old)
-            old_ptr <= (old_ptr +1)%1536;
-    end
-end
-
+always @(posedge clk, negedge rst_n) 
+  if(!rst_n) begin
+    old_ptr <= 11'b0;
+  else if(inc_old)
+    old_ptr <= (old_ptr +1)%1536;
+    
 //read ptr (used for readout)
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        read_ptr <= 11'h0;
-    end else begin
-        if (readout)
-            read_ptr <= (read_ptr +1)%1536;
-        else 
-            read_ptr <= old_ptr;
-    end
-end
-assign end_ptr = (old_ptr + 1020)%1536;
+always @(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    read_ptr <= 11'h0;
+  else
+    if (readout)
+      read_ptr <= (read_ptr +1)%1536;
+    else 
+      read_ptr <= old_ptr;
+    
 //actually should be old_ptr + 1021 but old_ptr itself advances on wrt_smpl
+//identify the end marker of readout
+assign end_ptr = (old_ptr + 1020)%1536;
 
 //readout finish indicator
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        readout_done <= 1'b0;
-    end else begin
-        if(read_ptr == end_ptr)
-            readout_done <= 1'b1;
-        else
-            readout_done <= 1'b0;
-    end
-end
-
+always @(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    readout_done <= 1'b0;
+  else 
+    if(read_ptr == end_ptr)
+      readout_done <= 1'b1;
+    else
+      readout_done <= 1'b0;
+    
 //sequencing flag set/unset
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        sequencing <= 1'b0;
-    end else begin
-        if (readout)
-            sequencing <= 1'b1;
-        else 
-            sequencing <= 1'b0;
-    end
-end
+always @(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    sequencing <= 1'b0;
+  else 
+    if (readout)
+      sequencing <= 1'b1;
+    else 
+      sequencing <= 1'b0;
 
 //reading data from ram
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        //smpl_out <= 16'h0;
-    end else begin
-        if(readout) //from SM
-            smpl_out <= ram_rdata;
-    end
-end
+always @(posedge clk, negedge rst_n)
+  if(!rst_n) 
+    smpl_out <= 16'hx; //helps save area
+  else if(readout) //from SM
+    smpl_out <= ram_rdata;
 
-//writing data to ram
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        we <= 1'b0;
-    end else begin
-        if(wr_data) begin
-            we <= 1'b1;
-            ram_wdata <= new_smpl;
-        end else begin
-            we <= 1'b0;
-        end
-    end
-end
+//Write enable control for writing to circular queue ram
+always @(posedge clk, negedge rst_n)
+  if(!rst_n)
+    write_en <= 1'b0;
+  else 
+    if(wr_data) //from SM 
+      write_en <= 1'b1;
+    else
+      write_en <= 1'b0;
 
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        st <= WAIT;
-    end else begin
-        st <= nxt_st;
-    end
-end
+//writing data to circular queue ram
+always @(posedge clk, negedge rst_n)
+  if(!rst_n) 
+    ram_wdata <= 16'hx; //deliberately keeping x to save area
+  else
+    if(wr_data) //from SM
+      ram_wdata <= new_smpl;
+    else 
+      ram_wdata <= 16'hx; //keeping x to save area
 
+//State Machine
+always @(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    st <= WAIT;
+  else 
+    st <= nxt_st;
+    
 always_comb begin
-inc_new = 1'b0;
-inc_old = 1'b0;
-wr_data = 1'b0;
-readout = 1'b0;
+  inc_new = 1'b0;
+  inc_old = 1'b0;
+  wr_data = 1'b0;
+  readout = 1'b0;
+  nxt_st = WAIT;
 
-case(st)
+  case(st)
     WAIT:
-        if (rst_n && wrt_smpl) begin
-            wr_data = 1'b1;
-            inc_new = 1'b1;
-            if(new_ptr == 1530) begin
-                inc_old = 1'b1;
-                readout = 1'b1;
-                nxt_st = READOUT;
-            end else begin
-                nxt_st = WAIT;
-            end
-        end else begin
-            nxt_st = WAIT;
-        end
+      if (wrt_smpl) begin
+        wr_data = 1'b1;
+        inc_new = 1'b1;
+        if(new_ptr == 1530) begin
+          inc_old = 1'b1;
+          readout = 1'b1;
+          nxt_st = READOUT;
+        end else 
+          nxt_st = WAIT;    
+      end else 
+          nxt_st = WAIT;
+
+        
     FULL: 
-        if(wrt_smpl) begin
-            readout = 1'b1;
-            wr_data = 1'b1;
-            inc_new = 1'b1;
-            inc_old = 1'b1;
-            nxt_st = READOUT;
-        end else begin
-            nxt_st = FULL;
-        end
+      if(wrt_smpl) begin
+        readout = 1'b1;
+        wr_data = 1'b1;
+        inc_new = 1'b1;
+        inc_old = 1'b1;
+        nxt_st = READOUT;
+      end else 
+        nxt_st = FULL;
+    
     READOUT:
-        if (readout_done == 1'b0) begin
-            readout = 1'b1;
-            nxt_st = READOUT;
-        end else begin
-            nxt_st = FULL;
-        end
-endcase 
+      if (readout_done == 1'b0) begin
+        readout = 1'b1;
+        nxt_st = READOUT;
+      end else 
+        nxt_st = FULL;
+      
+  endcase 
 end
 
 endmodule

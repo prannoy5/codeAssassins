@@ -1,4 +1,5 @@
 module band_scale(clk, pot, audio, scaled);
+
 input clk;
 input [11:0] pot;
 input signed [15:0] audio;
@@ -14,12 +15,12 @@ assign mult_pot = pot*pot;
 
 //Intentional flop stage
 always@(posedge clk)
-    signed_mult_pot <= {1'b0, mult_pot[23:12]};
+  signed_mult_pot <= {1'b0, mult_pot[23:12]};
 
 //Intentional flop stage
-always@(posedge clk) begin
-    signed_audio_scaled <= signed_mult_pot*audio;
-end
+always@(posedge clk) 
+  signed_audio_scaled <= signed_mult_pot*audio;
+
 
 assign sat_bits = signed_audio_scaled[28:25];
 assign sat_pos = ((sat_bits[3] == 1'b0) && (sat_bits[2:0] > 3'b000)) ? 1'b1 : 1'b0;

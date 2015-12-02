@@ -1,10 +1,11 @@
 module CORE_FIR(clk, rst_n, sequencing, smpl_in, smpl_out, cff_ptr, cff_out);
+
 parameter NUM_COEFF = 1021;
 input clk, rst_n, sequencing;
 input signed [15:0] smpl_in;
 input signed [15:0] cff_out;
 
-reg inc_smpl, clr_accum, rst_cff_ptr;
+reg inc_smpl, clr_accum;
 output reg [9:0] cff_ptr;
 reg [31:0] accum;
 reg signed [15:0] cff_out;
@@ -16,16 +17,14 @@ typedef enum reg [1:0] {IDLE, MAC} state;
 state st, nxt_st;
 
 //For addressing the ROM
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        cff_ptr <= 10'h0;
-    end else begin
-        if(inc_smpl)
-            cff_ptr <= cff_ptr +1;
-        else
-            cff_ptr <= 10'h0; //keep it reset by default
-    end
-end
+always@(posedge clk, negedge rst_n) 
+  if(!rst_n)
+    cff_ptr <= 10'h0;
+  else 
+    if(inc_smpl)
+      cff_ptr <= cff_ptr + 1;
+    else
+      cff_ptr <= 10'h0; //keep it reset by default
 
 //Filter done logic
 //Asserting done 1 cycle later to give the MAC extra time 
@@ -34,59 +33,51 @@ assign flt_done = (cff_ptr == 1022) ? 1'b1 : 1'b0;
 assign mult = cff_out*smpl_in;
 
 //MAC
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        accum <= 32'hx;
-    end else begin
-        if(clr_accum)
-            accum <= 32'h0;
-        else if(inc_smpl)
-            accum <= accum + mult;
-    end
-end
+always@(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    accum <= 32'hx;
+  else
+    if(clr_accum)
+      accum <= 32'h0;
+    else if(inc_smpl)
+      accum <= accum + mult;
 
 //Filter output
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        smpl_out <= 16'hx;
-    end else begin
-        //if(flt_done_d) 
-        if(flt_done) 
-            smpl_out <= accum[31:16];
-    end
-end
+always@(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    smpl_out <= 16'hx;
+  else if(flt_done) 
+    smpl_out <= accum[31:16];
 
 //SM
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        st <= IDLE;
-    end else begin
-        st <= nxt_st;
-    end
-end
+always@(posedge clk, negedge rst_n) 
+  if(!rst_n) 
+    st <= IDLE;
+  else 
+    st <= nxt_st;
 
 always_comb begin
-rst_cff_ptr = 1'b0;
-clr_accum = 1'b0;
-inc_smpl = 1'b0;
-case(st)
+  clr_accum = 1'b0;
+  inc_smpl = 1'b0;
+  nxt_st = IDLE;
+
+  case(st)
     IDLE:
-        if(sequencing) begin
-            rst_cff_ptr = 1'b1;
-            clr_accum = 1'b1;
-            inc_smpl = 1'b1; //why here
-            nxt_st = MAC; 
-        end else begin
-            nxt_st = IDLE;
-        end
+      if(sequencing) begin
+        clr_accum = 1'b1;
+        inc_smpl = 1'b1; //why here
+        nxt_st = MAC; 
+      end else 
+        nxt_st = IDLE;
+      
     MAC:
-        if(sequencing) begin
-            inc_smpl = 1'b1;
-            nxt_st = MAC;
-        end else begin
-            nxt_st = IDLE;
-        end
-endcase
+      if(sequencing) begin
+        inc_smpl = 1'b1;
+        nxt_st = MAC;
+      end else
+        nxt_st = IDLE;
+
+  endcase
 end
 
 endmodule
