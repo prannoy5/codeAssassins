@@ -1,13 +1,24 @@
-module rst_synch(RST_n, clk, rst_n);
-input RST_n, clk;
+module rst_synch(rst_n,RST_n,clk);
+
+input clk;
+input RST_n;
 output reg rst_n;
 
-always@(negedge clk, negedge RST_n) begin
-    if(!RST_n) begin
-        rst_n <= 1'b0;
-    end else begin
-        rst_n <= 1'b1;
-    end
-end
+reg flop1_output;
+
+//Code first flop
+always@(negedge clk, negedge RST_n)
+  if(!RST_n)
+    flop1_output <= 1'b0;
+  else
+    flop1_output <= 1'b1;
+
+//Code second flop
+always@(negedge clk, negedge RST_n)
+  if(!RST_n)
+    rst_n <= 1'b0;
+  else
+    rst_n <= flop1_output;
 
 endmodule
+

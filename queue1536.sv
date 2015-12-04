@@ -25,7 +25,7 @@ always @(posedge clk, negedge rst_n)
 
 //old ptr (start of readout)
 always @(posedge clk, negedge rst_n) 
-  if(!rst_n) begin
+  if(!rst_n)
     old_ptr <= 11'b0;
   else if(inc_old)
     old_ptr <= (old_ptr +1)%1536;

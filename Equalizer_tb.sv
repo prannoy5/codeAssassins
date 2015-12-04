@@ -42,12 +42,9 @@ ADC128S idut2 (.clk(clk),
                 );
 
 integer fptr,fptr1;
-initial begin
-    fptr = $fopen("audio_out.csv", "w");
-    $fmonitor(fptr, "%d, %d", aout_lft, aout_rht);
-end
 
 initial begin
+  fptr = $fopen("audio_out.csv", "w");
   fptr1 = $fopen("audio_in.csv", "w");
   ain_lft = codec.audmem[0];
   ain_rht = codec.audmem[1];
@@ -58,6 +55,9 @@ initial begin
     $fdisplay(fptr1, "%d, %d", ain_lft, ain_rht);
   end
 end
+
+always@(aout_rht)
+  $fdisplay(fptr, "%d, %d", aout_lft, aout_rht);
 
 initial begin
     clk = 1'b0;
