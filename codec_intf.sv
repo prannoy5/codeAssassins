@@ -64,7 +64,8 @@ always@(posedge clk, negedge rst_n) begin
     if (!rst_n) begin
         SDin <= 1'b0;
     end else begin
-        SDin <= shift_reg[15];
+        if(shift_l || shift_r)
+            SDin <= shift_reg[15];
     end
 end
 

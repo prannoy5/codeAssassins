@@ -248,11 +248,11 @@ always @(posedge clk, negedge rst_n)
 
 
 /**** LED EFFECTS ****/
+ output reg [7:0] LED;
  // synopsys translate_off
  
  wire [15:0] LED_smpl, LED_out;
  wire q_sequencing;
- output reg [7:0] LED;
  
 queue_LED q_LED(.clk(clk),
                  .rst_n(rst_n),
