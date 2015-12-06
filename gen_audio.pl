@@ -16,7 +16,7 @@ $amp = <STDIN>;
 $t = 0.0;
 $tstep = 6.28328/48828.0;
 
-for ($x=0; $x<4096; $x++) {
+for ($x=0; $x<16384; $x++) {
   $lft_sig = $amp*sin($t*$freq);
   $rht_sig = $amp*cos($t*$freq); 
   

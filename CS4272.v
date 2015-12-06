@@ -10,8 +10,8 @@
 
 module CS4272(MCLK, RSTn, SCLK, LRCLK, SDout, SDin, aout_lft, aout_rht);
 
-parameter SAMPLES = 8192;   // number of audio samples (both left and right combined)
-parameter SMPLOG2 = 12;
+parameter SAMPLES = 32768;   // number of audio samples (both left and right combined)
+parameter SMPLOG2 = 15;
 
 input MCLK;            // master clock to the chip
 input RSTn;            // chip reset
@@ -36,7 +36,8 @@ wire  newtrans, shiftout, shiftin;                // control signals
 /*-- load the audio samples  --*/
 initial 
 begin
-  $readmemh("audio_in.dat", audmem);
+  $readmemh("LP/audio_in_LP_f40_a1000.dat", audmem);
+  //$readmemh("B1/audio_in_B1_f120_a1000.dat", audmem);
 end
 
 /*-- Edge detection flops  --*/
