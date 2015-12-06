@@ -14,7 +14,7 @@ logic lrclk_cycle_cmplt, clr_shift, inc_shift;
 typedef enum reg[1:0] {IDLE, SHIFT_L, SHIFT_R} state_t;
 state_t st, nxt_st;
 
-assign LRCLK = timer[9];
+assign LRCLK = (lrclk_cycle_cmplt == 1) ? timer[9]: 1'b1;
 assign SCLK = timer[4];
 assign MCLK = timer[1];
 assign sclk_posedge = (timer%32 == 16) ? 1'b1 : 1'b0;

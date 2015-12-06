@@ -70,6 +70,8 @@ always @(posedge clk, negedge rst_n)
     smpl_out <= 16'hx; //helps save area
   else if(readout) //from SM
     smpl_out <= ram_rdata;
+  else
+    smpl_out <= 16'hx;
 
 //Write enable control for writing to circular queue ram
 always @(posedge clk, negedge rst_n)

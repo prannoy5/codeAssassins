@@ -1,6 +1,6 @@
 module band_scale_sum(LP_scl, B1_scl, B2_scl, B3_scl, HP_scl, out);
 
-input [15:0] LP_scl, B1_scl, B2_scl, B3_scl, HP_scl;
+input signed [15:0] LP_scl, B1_scl, B2_scl, B3_scl, HP_scl;
 output wire [15:0] out;
 
 wire signed [18:0] sum_out;

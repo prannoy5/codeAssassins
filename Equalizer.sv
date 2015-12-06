@@ -59,7 +59,7 @@ codec_intf iCS(.clk(clk), .rst_n(rst_n), .lft_in(lft_in), .rht_in(rht_in), .lft_
 /////////////////////////////////
 core iCore(.clk(clk), .rst_n(rst_n), .LP_pot(LP_pot), .B1_pot(B1_pot), .B2_pot(B2_pot), .B3_pot(B3_pot), 
             .HP_pot(HP_pot), .VOL_pot(volume), .lft_in(lft_in), .rht_in(rht_in), .valid(valid), 
-            .lft_out(lft_out), .rht_out(rht_out));
+            .lft_out(lft_out), .rht_out(rht_out), .AMP_ON(AMP_ON), .LED(LED));
 
 
 ////////////////////////////////////////////////////////////

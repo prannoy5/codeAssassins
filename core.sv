@@ -1,9 +1,10 @@
-module core(clk, rst_n, LP_pot, B1_pot, B2_pot, B3_pot, HP_pot, VOL_pot, lft_in, rht_in, valid, lft_out, rht_out);
+module core(clk, rst_n, LP_pot, B1_pot, B2_pot, B3_pot, HP_pot, VOL_pot, lft_in, rht_in, valid, lft_out, rht_out, AMP_ON, LED);
 
 input clk, rst_n, valid;
 input [15:0] lft_in, rht_in;
 input signed [11:0] LP_pot, B1_pot, B2_pot, B3_pot, HP_pot, VOL_pot; //assuming signed
 output reg [15:0] lft_out, rht_out;
+output reg AMP_ON;
 
 reg valid_d, wrt_sig, wrt_en;
 wire lft_seq_1024, lft_seq_1536;
@@ -244,5 +245,40 @@ always @(posedge clk, negedge rst_n)
     wrt_en <= 1'b0;
   else if(wrt_sig)
     wrt_en <= ~wrt_en;
+
+
+/**** LED EFFECTS ****/
+ // synopsys translate_off
+ 
+ wire [15:0] LED_smpl, LED_out;
+ wire q_sequencing;
+ output reg [7:0] LED;
+ 
+queue_LED q_LED(.clk(clk),
+                 .rst_n(rst_n),
+                 .new_smpl(lft_LP_out),
+                 .smpl_out(LED_smpl),
+                 .wrt_smpl(wrt_en & wrt_sig),
+                 .sequencing(q_sequencing)
+                 );
+ 
+LED_avg led_avg(.clk(clk),
+                 .rst_n(rst_n),
+                 .sequencing(q_sequencing),
+                 .smpl_in(LED_smpl),
+                 .smpl_out(LED_out)
+                 );
+ 
+assign LED = (LED_out[15] == 1) ? 8'hff :
+                 (LED_out[14] == 1) ? 8'h7f:
+                 (LED_out[13] == 1) ? 8'h3f:
+                 (LED_out[12] == 1) ? 8'h1f:
+                 (LED_out[11] == 1) ? 8'h0f:
+                 (LED_out[10] == 1) ? 8'h07:
+                 (LED_out[9] == 1) ? 8'h03:
+                 (LED_out[8] == 1) ? 8'h01: 8'h0;
+ 
+ 
+// synopsys translate_on
 
 endmodule
