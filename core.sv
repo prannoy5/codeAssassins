@@ -27,7 +27,8 @@ queue1024 lft_q1024(.clk(clk),
                     .new_smpl(lft_in),
                     .smpl_out(lft_q1024_out),
                     .wrt_smpl(wrt_en & wrt_sig),
-                    .sequencing(lft_seq_1024)
+                    .sequencing(lft_seq_1024),
+                    .AMP_ON(AMP_ON)
                     );
 
 queue1536 lft_q1536(.clk(clk),
@@ -111,7 +112,8 @@ queue1024 rht_q1024(.clk(clk),
                     .new_smpl(rht_in),
                     .smpl_out(rht_q1024_out),
                     .wrt_smpl(wrt_en & wrt_sig),
-                    .sequencing(rht_seq_1024)
+                    .sequencing(rht_seq_1024),
+                    .AMP_ON()
                     );
 
 queue1536 rht_q1536(.clk(clk),

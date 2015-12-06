@@ -47,7 +47,7 @@ always@(posedge clk, negedge rst_n)
   if(!rst_n) 
     smpl_out <= 16'hx;
   else if(flt_done) 
-    smpl_out <= accum[31:16];
+    smpl_out <= accum[30:15];
 
 //SM
 always@(posedge clk, negedge rst_n) 
