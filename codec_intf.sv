@@ -1,181 +1,189 @@
-module codec_intf(clk, rst_n, LRCLK, SCLK, MCLK, RSTn, SDout, SDin, lft_in, rht_in, valid, lft_out, rht_out);
+module codec_intf(clk,rst_n,LRCLK,SCLK,MCLK,RSTn,SDout,SDin,lft_in,rht_in,valid,lft_out,rht_out);
 
-input clk, rst_n, SDout;
-input [15:0] lft_out, rht_out;
-output reg LRCLK, SCLK, MCLK, RSTn, SDin, valid;
-output reg [15:0] lft_in, rht_in;
+input clk,rst_n;
+input [15:0] lft_out;
+input [15:0] rht_out;
+input SDout;
 
-reg [9:0] timer;
-reg [4:0] shift_cnt;
-reg [15:0] shift_reg, lft_in_buf, rht_in_buf;
-logic shift_l, shift_r, set_valid, clr_valid;
-logic lrclk_cycle_cmplt, clr_shift, inc_shift;
+output LRCLK;
+output SCLK;
+output MCLK;
+output reg RSTn;
+output SDin;
+output [15:0] lft_in;
+output [15:0] rht_in;
+output reg valid;
 
-typedef enum reg[1:0] {IDLE, SHIFT_L, SHIFT_R} state_t;
-state_t st, nxt_st;
+reg [9:0] cnt_clk;
+reg [1:0] state, next_state;
+reg send_left,send_right;
+reg [3:0] rht_bits_transferred;
+reg q_LRCLK,q_SCLK,q_valid;
+reg first_LRCLK_negedge_done;
+wire posedge_LRCLK,negedge_LRCLK,posedge_SCLK,negedge_SCLK;
+reg send_left_audio,send_right_audio;
+reg [15:0] shift_reg_to_CODEC, lft_buffer, rht_buffer;
+reg [15:0] shift_reg_lft_in;
+reg [15:0] shift_reg_rht_in;
 
-assign LRCLK = (lrclk_cycle_cmplt == 1) ? timer[9]: 1'b1;
-assign SCLK = timer[4];
-assign MCLK = timer[1];
-assign sclk_posedge = (timer%32 == 16) ? 1'b1 : 1'b0;
-assign sclk_negedge = (timer%32 == 0) ? 1'b1 : 1'b0;
-assign lrclk_posedge = (timer%1024 == 512) ? 1'b1 : 1'b0;
-assign lrclk_negedge = ((lrclk_cycle_cmplt == 1) && (timer%1024 == 0)) ? 1'b1 : 1'b0;
 
-//for the timer
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        timer <= 10'h0; //does this have to be 10'h200
-    end else begin
-        timer <= timer + 1;
-    end
-end
+//Generate all required derived clocks
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    cnt_clk <= 10'h200;
+  else
+    cnt_clk <= cnt_clk + 1;
 
-//detecting lrclk cycle
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        lrclk_cycle_cmplt <= 1'b0;
-    end else if (timer == 1023) begin
-        lrclk_cycle_cmplt <= 1'b1;
-    end
-end
+assign LRCLK = cnt_clk[9]; //clk by 1024
+assign SCLK = cnt_clk[4]; // clk by 32
+assign MCLK = cnt_clk[1]; // clk by 4
 
-//for RSTn (obviously :))
-always @(posedge clk, negedge rst_n) begin
-    if(!rst_n)
-        RSTn <= 1'b0;
-    else if (lrclk_negedge)
-        RSTn <= 1'b1;
-end
+//Hold RSTn asserted until first cycle of LRCLK completes
+always@(posedge clk, negedge rst_n)
+  if(!rst_n) 
+    RSTn <= 1'b0; 
+  else if (posedge_LRCLK && first_LRCLK_negedge_done) 
+    RSTn <= 1'b1;
 
-//valid
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        valid <= 1'b0;
-    end else if (set_valid) begin
-        valid <= 1'b1;
-    end else if (clr_valid) begin
-        valid <= 1'b0;
-    end
-end
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    first_LRCLK_negedge_done <= 1'b0;
+  else if(negedge_LRCLK)
+    first_LRCLK_negedge_done <= 1'b1;    
 
-//loading shift reg for out
-always@(posedge clk, negedge rst_n) begin
-    if (!rst_n) begin
-        SDin <= 1'b0;
-    end else begin
-        if(shift_l || shift_r)
-            SDin <= shift_reg[15];
-    end
-end
+//Rising edge detector for LRCLK
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    q_LRCLK <= 0;
+  else
+    q_LRCLK <= LRCLK;
 
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        shift_reg <= 16'b0;
-    end else begin
-        if(lrclk_posedge)
-            shift_reg <= lft_out;
-        else if (lrclk_negedge)
-            shift_reg <= rht_out;
-        else if(shift_l || shift_r) begin
-            shift_reg <= shift_reg << 1;
-        end //else maintain
-    end
-end
-//buffering lft and rht signals
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        lft_in <= 16'h0;
-        rht_in <= 16'h0;
-    end else begin
-        if (set_valid) begin
-            lft_in <= lft_in_buf;
-            rht_in <= rht_in_buf;
-        end //else maintain
-    end
-end
+assign posedge_LRCLK = ~q_LRCLK & LRCLK;
+assign negedge_LRCLK = q_LRCLK & ~LRCLK;
 
-//shift reg for lft_in, rht_in
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        lft_in_buf <= 15'b0;
-        rht_in_buf <= 15'b0;
-    end else begin
-        if(shift_l) begin
-            lft_in_buf <= {lft_in_buf[14:0], SDout};
-        end else if (shift_r) begin
-            rht_in_buf <= {rht_in_buf[14:0], SDout};
-        end //else maintain
-    end
-end
+//Rising edge detector for SCLK
+///double-flopped for meta-stability
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    q_SCLK <= 0;
+  else
+    q_SCLK <= SCLK;
 
-//for keeping track of shift amount
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        shift_cnt <= 5'b0;
-    end else begin
-        if(clr_shift)
-            shift_cnt <= 5'b0;
-        else if(inc_shift)
-            shift_cnt <= shift_cnt +1;
-        //else maintain
-    end
-end
+assign posedge_SCLK = ~q_SCLK & SCLK;
+assign negedge_SCLK = q_SCLK & ~SCLK;
 
-//codec SM
-always@(posedge clk, negedge rst_n) begin
-    if(!rst_n) begin
-        st <= IDLE;
-    end else begin
-        st <= nxt_st;
-    end
-end
+//Define states for state machine controlling data
+//transfer from/to CODEC to/from digitizer core
+localparam IDLE = 2'b00;
+localparam SENDING_LEFT_AUDIO = 2'b01;
+localparam SENDING_RIGHT_AUDIO = 2'b10;
 
-always_comb begin
-shift_l = 1'b0;
-shift_r = 1'b0;
-inc_shift = 1'b0;
-clr_shift = 1'b0;
-set_valid = 1'b0;
-clr_valid = 1'b0;
-  case (st)
-    IDLE:
-        if(RSTn && lrclk_posedge == 1'b1) begin //posedge LRCLK
-            nxt_st = SHIFT_L;
-        end else begin
-            nxt_st = IDLE;
+//Encode state machine 
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    state <= IDLE;
+  else
+    state <= next_state;
+
+always@(state,posedge_LRCLK,negedge_LRCLK,first_LRCLK_negedge_done)
+  begin
+    next_state = IDLE;
+    send_left = 0;
+    send_right = 0;
+
+    case(state)
+
+      IDLE: 
+        if(posedge_LRCLK && first_LRCLK_negedge_done) 
+          next_state = SENDING_LEFT_AUDIO;
+
+      SENDING_LEFT_AUDIO: 
+        begin
+          send_left = 1;
+          if(negedge_LRCLK)
+            next_state = SENDING_RIGHT_AUDIO;
+          else
+            next_state = SENDING_LEFT_AUDIO;
         end
-    SHIFT_L:
-        if(shift_cnt == 16) begin
-            clr_shift = 1'b1;
-            nxt_st = SHIFT_R;
-        end else begin
-            if(sclk_posedge == 1'b1) begin
-                shift_l = 1'b1;
-                inc_shift = 1'b1;
-            end else if (sclk_negedge) begin
-                clr_valid = 1'b1;
-            end
-            nxt_st = SHIFT_L;
-        end
-    SHIFT_R:
-        if (shift_cnt == 16) begin
-            set_valid = 1'b1;
-            clr_shift = 1'b1;
-            nxt_st = SHIFT_L;
-        end else begin
-            if(sclk_posedge == 1'b1) begin
-                shift_r = 1'b1;
-                inc_shift = 1'b1;
-            end else if (sclk_negedge) begin
-                clr_valid = 1'b1;
-            end
-            nxt_st = SHIFT_R;
-       end
-    default:
-        nxt_st = IDLE;
-  endcase
 
+      SENDING_RIGHT_AUDIO: 
+        begin
+          send_right = 1;
+          if(posedge_LRCLK)
+            next_state = SENDING_LEFT_AUDIO;
+          else
+            next_state = SENDING_RIGHT_AUDIO;
+        end
+
+    endcase
 end
+
+//////////////////// CODEC TO DIGITIZER CIRCUITRY ////////////////////////
+
+//Send audio data from CODEC to digitizer core
+//at posedge of SCLK when commanded to do so by SM
+always@(posedge clk, negedge rst_n)
+  if(!rst_n) begin
+    shift_reg_lft_in <= 16'h0000; 
+    shift_reg_rht_in <= 16'h0000; 
+  end
+  else if(posedge_SCLK && send_left)
+    shift_reg_lft_in <= {shift_reg_lft_in[14:0],SDout};
+  else if(posedge_SCLK && send_right)
+    shift_reg_rht_in <= {shift_reg_rht_in[14:0],SDout};
+
+assign lft_in = shift_reg_lft_in;
+assign rht_in = shift_reg_rht_in;
+
+//Keep track of number of right bits transferred
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    rht_bits_transferred <= 0;
+  else if(posedge_SCLK && send_right)
+    rht_bits_transferred <= rht_bits_transferred + 1; 
+
+//Set valid bit on rising edge of SCLK when
+//16th bit of right audio will be transferred
+//and reset it on next falling edge of SCLK
+//We use cnt_clk to assign new value to valid
+//1 clk cycle before rising/falling edge of SCLK
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    valid <= 1'b0;
+  //else if((cnt_clk[4:0] == 5'b01111) && (rht_bits_transferred == 15))
+  else if(posedge_SCLK && (rht_bits_transferred == 15))
+    valid <= 1'b1;
+  //else if((cnt_clk[4:0] == 5'b11111) && (rht_bits_transferred == 0))
+  else if(negedge_SCLK && (rht_bits_transferred == 0))
+    valid <= 1'b0;
+
+//////////////////// DIGITIZER TO CODEC CIRCUITRY ////////////////////////
+
+//Load value from lft_out to lft_buffer whenever valid is asserted
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    lft_buffer <= 16'h0000;
+  else if(valid)
+    lft_buffer <= lft_out;
+
+//Load value from rht_out to rht_buffer whenever valid is asserted
+always@(posedge clk, negedge rst_n)
+  if(!rst_n)
+    rht_buffer <= 16'h0000;
+  else if(valid)
+    rht_buffer <= rht_out;
+
+//Send audio data from digitizer core to CODEC
+always@(posedge clk, negedge rst_n)
+  if(!rst_n) 
+    shift_reg_to_CODEC <= 16'h0000;
+  else if(posedge_LRCLK)
+    shift_reg_to_CODEC <= lft_buffer;
+  else if(negedge_LRCLK)
+    shift_reg_to_CODEC <= rht_buffer;
+  else if(negedge_SCLK && (send_left || send_right))
+    shift_reg_to_CODEC <= {shift_reg_to_CODEC[14:0],1'b0}; 
+
+assign SDin = shift_reg_to_CODEC[15];
 
 endmodule

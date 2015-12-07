@@ -1,4 +1,4 @@
-module Equalizer_tb_B3_VolUnity();
+module Equalizer_tb_LP_ericaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
 //only filter B3 is enabled (1 to 4 KHZ) with unity gain(0x800) and volume is at max (0xFFF)
@@ -53,6 +53,7 @@ integer lft_freq_errors,rht_freq_errors,lft_ampl_errors,rht_ampl_errors;
 integer cin_lft, cin_rht;
 integer start_lft_test,start_rht_test;
 integer testing_sample_count;
+integer min_sample_count,max_sample_count,min_ampl,max_ampl;
 
 //Convert audio_in.dat to audio_in.csv
 initial begin
@@ -93,8 +94,6 @@ initial begin
     max_lft_ampl = (aout_lft > max_lft_ampl) ? aout_lft : max_lft_ampl;
   end
   start_lft_test = 0;
-  $display("Number of left audio frequency errors = %d\n",lft_freq_errors);
-  $display("Number of left audio amplitude errors = %d\n",lft_ampl_errors);
 end
 
 //Count samples and record amplitude for right channel
@@ -109,6 +108,8 @@ initial begin
   start_rht_test = 0;
   $display("Number of right audio frequency errors = %d\n",rht_freq_errors);
   $display("Number of right audio amplitude errors = %d\n",rht_ampl_errors);
+  $display("Number of left audio frequency errors = %d\n",lft_freq_errors);
+  $display("Number of left audio amplitude errors = %d\n",lft_ampl_errors);
   $stop;
 end
 
@@ -116,12 +117,12 @@ end
 //Count max amplitude at zero crossing time. Should be around 4000
 always@(posedge zero_crossing_lft) begin
 
-  if (start_lft_test && ((lft_sample_count < 12) || (lft_sample_count > 20))) begin
+  if (start_lft_test && ((lft_sample_count < min_sample_count) || (lft_sample_count > max_sample_count))) begin
     lft_freq_errors = lft_freq_errors + 1;
     $display("Erroneous Left Sample Count at Sample %d = %d\n",cin_lft,lft_sample_count);
   end
 
-  if (start_lft_test && ((max_lft_ampl < 3000) || (max_lft_ampl > 5000))) begin
+  if (start_lft_test && ((max_lft_ampl < min_ampl) || (max_lft_ampl > max_ampl))) begin
     lft_ampl_errors = lft_ampl_errors + 1;
     $display("Erroneous Left Amplitude at Sample %d = %d\n",cin_lft,max_lft_ampl);
   end
@@ -135,12 +136,12 @@ end
 //Count number of samples at zero crossing time. Should be around 16.
 always@(posedge zero_crossing_rht) begin
 
-  if (start_rht_test && ((rht_sample_count < 12) || (rht_sample_count > 20))) begin
+  if (start_rht_test && ((rht_sample_count < min_sample_count) || (rht_sample_count > max_sample_count))) begin
     rht_freq_errors = rht_freq_errors + 1;
     $display("Erroneous Right Sample Count at Sample %d = %d\n",cin_rht,rht_sample_count);
   end
 
-  if (start_rht_test && ((max_rht_ampl < 3000) || (max_rht_ampl > 5000))) begin
+  if (start_rht_test && ((max_rht_ampl < min_ampl) || (max_rht_ampl > max_ampl))) begin
     rht_ampl_errors = rht_ampl_errors + 1;
     $display("Erroneous Right Amplitude at Sample %d = %d\n",cin_rht,max_rht_ampl);
   end
@@ -161,7 +162,11 @@ initial begin
   rht_ampl_errors = 0;
   start_lft_test = 0;
   start_rht_test = 0;
-  testing_sample_count = 2000;
+  testing_sample_count = 10000;
+  min_sample_count = 572;
+  max_sample_count = 954;
+  min_ampl = 2400;
+  max_ampl = 4000;
   clk = 1'b0;
   RST_n = 1'b0;
   repeat(20) @(posedge clk);
