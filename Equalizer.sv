@@ -28,7 +28,6 @@ wire [15:0] lft_out,rht_out;
 wire [2:0] chnnl;
 wire [11:0] res;
 wire [11:0] LP_pot,B1_pot,B2_pot,B3_pot,HP_pot,volume;
-reg [10:0] del;
 
 /////////////////////////////////////
 // Instantiate Reset synchronizer //

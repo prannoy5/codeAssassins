@@ -258,7 +258,7 @@ always @(posedge clk, negedge rst_n)
  
 queue_LED q_LED(.clk(clk),
                  .rst_n(rst_n),
-                 .new_smpl(lft_LP_out),
+                 .new_smpl(lft_B1_out),
                  .smpl_out(LED_smpl),
                  .wrt_smpl(wrt_en & wrt_sig),
                  .sequencing(q_sequencing)
@@ -271,14 +271,13 @@ LED_avg led_avg(.clk(clk),
                  .smpl_out(LED_out)
                  );
  
-assign LED = (LED_out[15] == 1) ? 8'hff :
-                 (LED_out[14] == 1) ? 8'h7f:
-                 (LED_out[13] == 1) ? 8'h3f:
-                 (LED_out[12] == 1) ? 8'h1f:
-                 (LED_out[11] == 1) ? 8'h0f:
-                 (LED_out[10] == 1) ? 8'h07:
-                 (LED_out[9] == 1) ? 8'h03:
-                 (LED_out[8] == 1) ? 8'h01: 8'h0;
+assign LED = (LED_out[14] == 1) ? 8'hff :
+                 (LED_out[13] == 1) ? 8'h7f:
+                 (LED_out[12] == 1) ? 8'h3f:
+                 (LED_out[11] == 1) ? 8'h1f:
+                 (LED_out[10] == 1) ? 8'h0f:
+                 (LED_out[9] == 1) ? 8'h07:
+                 (LED_out[8] == 1) ? 8'h03: 8'h01;
  
  
 // synopsys translate_on
