@@ -220,7 +220,7 @@ initial begin
   smooth_flops = 1;
   testing_sample_count = 40; //generate approx 4 full periods
   min_sample_count = 6;
-  ideal_sample_count = 8; //not used, (48828 Hz / 2560 Hz) = 19
+  ideal_sample_count = 8; //not used, (48828 Hz / 6000 Hz) = 8
   max_sample_count = 10;
   min_ampl = 2400;
   ideal_ampl = 3200; //not used

@@ -218,10 +218,10 @@ initial begin
   zero_crossing_count_rht = 0;
 
   smooth_flops = 1;
-  testing_sample_count = 40; //generate approx 4 full periods
-  min_sample_count = 6;
-  ideal_sample_count = 8; //not used, (48828 Hz / 2560 Hz) = 19
-  max_sample_count = 10;
+  testing_sample_count = 30; //generate approx 4 full periods
+  min_sample_count = 3;
+  ideal_sample_count = 5; //not used, (48828 Hz / 10000 Hz) = 5
+  max_sample_count = 7;
   min_ampl = 3000;
   ideal_ampl = 4000; //not used
   max_ampl = 5000;
