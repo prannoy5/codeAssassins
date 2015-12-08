@@ -1,4 +1,4 @@
-module Equalizer_tb_LP_ericaudio();
+module Equalizer_tb_LP_mixaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
 //only filter LP is enabled (0 to 64Hz) with unity gain(0x800) and volume is at unity (0x800)

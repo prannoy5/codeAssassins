@@ -1,4 +1,4 @@
-module Equalizer_tb_B2_ericaudio();
+module Equalizer_tb_B2_mixaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
 //only filter B2 is enabled (256Hz to 1KHz) with unity gain(0x800) and volume is at unity (0x800)

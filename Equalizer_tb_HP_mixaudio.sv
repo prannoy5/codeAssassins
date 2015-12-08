@@ -1,4 +1,4 @@
-module Equalizer_tb_HP_ericaudio();
+module Equalizer_tb_HP_mixaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
 //only filter HP is enabled (4KHz and above) with unity gain(0x800) and volume is at unity (0x800)
