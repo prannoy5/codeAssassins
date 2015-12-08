@@ -1,7 +1,7 @@
-module Equalizer_tb_B3_ericaudio();
+module Equalizer_tb_HP_ericaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
-//only filter B3 is enabled (1KHz to 4KHz) with unity gain(0x800) and volume is at unity (0x800)
+//only filter HP is enabled (4KHz and above) with unity gain(0x800) and volume is at unity (0x800)
 
 reg clk, RST_n;
 wire A2D_SS_n, A2D_MOSI, A2D_MISO, A2D_SCLK;
@@ -9,7 +9,10 @@ wire LRCLK, SCLK, MCLK, RSTn, SDin, SDout, AMP_ON;
 wire signed [15:0] aout_lft, aout_rht;
 reg[12:0] cin;
 reg signed [15:0] ain_lft, ain_rht;
-reg signed [15:0] aout_lft_q,aout_rht_q;
+reg signed [15:0] aout_lft_smooth,aout_rht_smooth;
+reg signed [15:0] aout_lft_smooth_q,aout_rht_smooth_q;
+reg signed [15:0] aout_lft_smooth_array[0:49],aout_rht_smooth_array[0:49];
+reg signed [21:0] lft_smooth_sum,rht_smooth_sum;
 reg signed [15:0] max_lft_ampl,max_rht_ampl;
 wire zero_crossing_lft,zero_crossing_rht;
 wire pos_to_neg_zero_crossing_lft,pos_to_neg_zero_crossing_rht;
@@ -48,20 +51,21 @@ ADC128S idut2 (.clk(clk),
                 .MOSI(A2D_MOSI)
                 );
 
-integer fptr,fptr1;
+integer fptr,fptr1,fptr2;
 integer lft_sample_count,rht_sample_count;
 integer lft_freq_errors,rht_freq_errors,lft_ampl_errors,rht_ampl_errors;
 integer cin_lft, cin_rht;
 integer zero_crossing_count_rht,zero_crossing_count_lft;
 integer testing_sample_count;
 integer min_sample_count,max_sample_count,ideal_sample_count,ideal_ampl,min_ampl,max_ampl;
-integer fluctuation_lft,fluctuation_rht;
 integer index_lft,index_rht;
-integer fluctuation_check_sample_count;
+integer smooth_index,lft_smooth_index,rht_smooth_index;
+integer smooth_flops;
 
 //Convert audio_in.dat to audio_in.csv
 initial begin
   fptr = $fopen("audio_out.csv", "w");
+  fptr2 = $fopen("audio_out_smooth.csv", "w");
   fptr1 = $fopen("audio_in.csv", "w");
   ain_lft = codec.audmem[0];
   ain_rht = codec.audmem[1];
@@ -78,38 +82,63 @@ end
 always@(aout_rht)
   $fdisplay(fptr, "%d, %d", aout_lft, aout_rht);
 
-//Flops to help capture zero crossing 
+//Write smoothed wave to CSV
+always@(aout_rht)
+  $fdisplay(fptr2, "%d, %d", aout_lft_smooth, aout_rht_smooth);
+
+///Generate Smoothed Output Audio for testing
+always@(aout_lft) begin
+  aout_lft_smooth_array[0] <= aout_lft;
+  for(lft_smooth_index = 1; lft_smooth_index < smooth_flops; lft_smooth_index = lft_smooth_index + 1) 
+    aout_lft_smooth_array[lft_smooth_index] <= aout_lft_smooth_array[lft_smooth_index-1];
+end
+
+always@(aout_rht) begin
+  aout_rht_smooth_array[0] <= aout_rht;
+  for(rht_smooth_index = 1; rht_smooth_index < smooth_flops; rht_smooth_index = rht_smooth_index + 1) 
+    aout_rht_smooth_array[rht_smooth_index] <= aout_rht_smooth_array[rht_smooth_index-1];
+end
+
+always_comb begin
+  lft_smooth_sum = 0;
+  rht_smooth_sum = 0;
+  for(smooth_index = 0; smooth_index < smooth_flops; smooth_index = smooth_index + 1) begin
+    lft_smooth_sum += aout_lft_smooth_array[smooth_index];
+    rht_smooth_sum += aout_rht_smooth_array[smooth_index];
+  end
+  aout_lft_smooth = lft_smooth_sum / smooth_flops;
+  aout_rht_smooth = rht_smooth_sum / smooth_flops;
+end
+
+//Flops to help capture zero crossing in smoothed signal
 always@(posedge clk) begin
-  aout_lft_q <= aout_lft;
-  aout_rht_q <= aout_rht;
+  aout_lft_smooth_q <= aout_lft_smooth;
+  aout_rht_smooth_q <= aout_rht_smooth;
 end
 
 //Create zero crossing pulse at negative to positive crossing
-assign zero_crossing_lft = ~aout_lft[15] & aout_lft_q[15];
-assign zero_crossing_rht = ~aout_rht[15] & aout_rht_q[15];
-
-assign pos_to_neg_zero_crossing_lft = aout_lft[15] & ~aout_lft_q[15];
-assign pos_to_neg_zero_crossing_rht = aout_rht[15] & ~aout_rht_q[15];
+assign zero_crossing_lft = ~aout_lft_smooth[15] & aout_lft_smooth_q[15];
+assign zero_crossing_rht = ~aout_rht_smooth[15] & aout_rht_smooth_q[15];
 
 //Count samples and record amplitude for left channel
 initial begin
-  @(posedge zero_crossing_lft); //ignore first crossing as it is a x to 0 transition
-  @(posedge zero_crossing_lft);
+  @(posedge zero_crossing_lft); //ignore first crossing as it is a 0 to x transition
+  @(posedge zero_crossing_lft); //this one is the first proper crossing
   for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin
-    @(aout_lft); 
-    #10 lft_sample_count = lft_sample_count + 1; //added delay to avoid conflict with always block resetting sample count
-    max_lft_ampl = (aout_lft > max_lft_ampl) ? aout_lft : max_lft_ampl;
+    @(aout_lft_smooth); 
+    #1 lft_sample_count = lft_sample_count + 1; 
+    max_lft_ampl = (aout_lft_smooth > max_lft_ampl) ? aout_lft_smooth : max_lft_ampl;
   end
 end
 
 //Count samples and record amplitude for right channel
 initial begin
-  @(posedge zero_crossing_rht); //ignore first crossing as it is a x to 0 transition
-  @(posedge zero_crossing_rht);
+  @(posedge zero_crossing_rht); //ignore first crossing as it is a 0 to x transition
+  @(posedge zero_crossing_rht); //this one is the first proper crossing
   for(cin_rht = 0; cin_rht < testing_sample_count; cin_rht++) begin
-    @(aout_rht); 
-    #10 rht_sample_count = rht_sample_count + 1; //added delay to avoid conflict with always block resetting sample count
-    max_rht_ampl = (aout_rht > max_rht_ampl) ? aout_rht : max_rht_ampl;
+    @(aout_rht_smooth); 
+    #1 rht_sample_count = rht_sample_count + 1; 
+    max_rht_ampl = (aout_rht_smooth > max_rht_ampl) ? aout_rht_smooth : max_rht_ampl;
   end
   $display("Number of right audio frequency errors = %d\n",rht_freq_errors);
   $display("Number of right audio amplitude errors = %d\n",rht_ampl_errors);
@@ -118,28 +147,19 @@ initial begin
   $stop;
 end
 
-//Count number of samples at zero crossing time. Should be around 16.
-//Count max amplitude at zero crossing time. Should be around 4000
+//Count number of samples at zero crossing time
+//Count max amplitude at zero crossing time
 always@(posedge zero_crossing_lft) begin
+
+  //$display("Left Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_lft,aout_lft,zero_crossing_count_lft);
 
   zero_crossing_count_lft = zero_crossing_count_lft + 1;
 
-  $display("Left Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_lft,aout_lft,zero_crossing_count_lft);
-
-  //wait for few more sample before declaring this as "true" zero crossing.
-  //It's not a true crossing if one of the next few sample turn out to be pos to neg crossing
-  for(index_lft = 0; index_lft < fluctuation_check_sample_count; index_lft++) begin
-    @(aout_lft);
-    if(pos_to_neg_zero_crossing_lft)
-      fluctuation_lft = 1; 
-  end
-
   //Do not consider zero crossings that 
   //(1) occurs before test start 
-  //(2) occurs after first proper neg to pos crossing
-  //(3) is a fluctuation and not true crossing
-  if ((zero_crossing_count_lft > 2) && !fluctuation_lft) begin  
-
+  //(2) occurs before second proper neg to pos crossing
+  if (zero_crossing_count_lft > 2) begin  
+    $display("Zero Crossing on Left Audio....Starting Testing\n");
     if ((lft_sample_count < min_sample_count) || (lft_sample_count > max_sample_count)) begin
       lft_freq_errors = lft_freq_errors + 1;
       $display("Erroneous Left Sample Count at Sample %d = %d\n",cin_lft,lft_sample_count);
@@ -150,33 +170,24 @@ always@(posedge zero_crossing_lft) begin
       $display("Erroneous Left Amplitude at Sample %d = %d\n",cin_lft,max_lft_ampl);
     end
 
-    //$display("Left Sample Count = %d\n",lft_sample_count);
-    //$display("Left Amplitude = %d\n",max_lft_ampl);
     lft_sample_count = 0;
     max_lft_ampl = 0;
   end
+
 end
 
-//Count number of samples at zero crossing time. Should be around 16.
+//Count number of samples at zero crossing time
+//Count max amplitude at zero crossing time
 always@(posedge zero_crossing_rht) begin
 
+  //$display("Right Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_rht,aout_rht,zero_crossing_count_rht);
   zero_crossing_count_rht = zero_crossing_count_rht + 1;
-
-  $display("Right Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_rht,aout_rht,zero_crossing_count_rht);
-
-  //wait for few more sample before declaring this as "true" zero crossing.
-  //It's not a true crossing if one of the next few sample turn out to be pos to neg crossing
-  for(index_rht = 0; index_rht < fluctuation_check_sample_count; index_rht++) begin
-    @(aout_rht);
-    if(pos_to_neg_zero_crossing_rht)
-      fluctuation_rht = 1; 
-  end
 
   //Do not consider zero crossings that 
   //(1) occurs before test start 
-  //(2) occurs after first proper neg to pos crossing
-  //(3) is a fluctuation and not true crossing
-  if ((zero_crossing_count_rht > 2) && !fluctuation_rht) begin  
+  //(2) occurs before second proper neg to pos crossing
+  if (zero_crossing_count_rht > 2) begin  
+    $display("Zero Crossing on Right Audio....Starting Testing\n");
     if ((rht_sample_count < min_sample_count) || (rht_sample_count > max_sample_count)) begin
       rht_freq_errors = rht_freq_errors + 1;
       $display("Erroneous Right Sample Count at Sample %d = %d\n",cin_rht,rht_sample_count);
@@ -190,6 +201,7 @@ always@(posedge zero_crossing_rht) begin
     rht_sample_count = 0;
     max_rht_ampl = 0;
   end
+
 end
 
 //Initalize clock and reset
@@ -204,14 +216,12 @@ initial begin
   rht_ampl_errors = 0;
   zero_crossing_count_lft = 0;
   zero_crossing_count_rht = 0;
-  fluctuation_lft = 0;
-  fluctuation_rht = 0;
 
-  testing_sample_count = 80; //generate approx 4 full periods
-  fluctuation_check_sample_count = 3;
-  min_sample_count = 14;
-  ideal_sample_count = 19; //not used, (48828 Hz / 2560 Hz) = 19
-  max_sample_count = 24;
+  smooth_flops = 1;
+  testing_sample_count = 40; //generate approx 4 full periods
+  min_sample_count = 6;
+  ideal_sample_count = 8; //not used, (48828 Hz / 2560 Hz) = 19
+  max_sample_count = 10;
   min_ampl = 2400;
   ideal_ampl = 3200; //not used
   max_ampl = 4000;
