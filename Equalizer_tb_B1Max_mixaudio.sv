@@ -1,7 +1,7 @@
-module Equalizer_tb_LP_mixaudio();
+module Equalizer_tb_B1Max_mixaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
-//only filter LP is enabled (0 to 64Hz) with unity gain(0x800) and volume is at unity (0x800)
+//only filter B1 is enabled (64Hz to 256Hz) with unity gain(0x800) and volume is at unity (0x800)
 
 reg clk, RST_n;
 wire A2D_SS_n, A2D_MOSI, A2D_MISO, A2D_SCLK;
@@ -122,21 +122,19 @@ assign zero_crossing_rht = ~aout_rht_smooth[15] & aout_rht_smooth_q[15];
 
 //Count samples and record amplitude for left channel
 initial begin
-  @(posedge zero_crossing_lft); //this one is the first crossing
-
-  $display("Zero Crossing on Left Audio....Starting Counting\n");
-  for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin
+  @(posedge zero_crossing_lft); //ignore first crossing as it is a x to 0 transition
+  @(posedge zero_crossing_lft); //this one is the first proper crossing
+  for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin 
     #1 lft_sample_count = lft_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_lft_ampl = (aout_lft_smooth > max_lft_ampl) ? aout_lft_smooth : max_lft_ampl;
-    @(aout_lft_smooth); 
+    @(aout_lft_smooth);
   end
 end
 
 //Count samples and record amplitude for right channel
 initial begin
-  @(posedge zero_crossing_rht); //this one is the first crossing
-
-  $display("Zero Crossing on Right Audio....Starting Counting\n");
+  @(posedge zero_crossing_rht); //ignore first crossing as it is a x to 0 transition
+  @(posedge zero_crossing_rht); //this one is the first proper crossing
   for(cin_rht = 0; cin_rht < testing_sample_count; cin_rht++) begin
     #1 rht_sample_count = rht_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_rht_ampl = (aout_rht_smooth > max_rht_ampl) ? aout_rht_smooth : max_rht_ampl;
@@ -160,9 +158,8 @@ always@(posedge zero_crossing_lft) begin
   //Do not consider zero crossings that 
   //(1) occurs before test start 
   //(2) occurs before second proper neg to pos crossing
-  if (zero_crossing_count_lft > 1) begin  
+  if (zero_crossing_count_lft > 2) begin  
     $display("Zero Crossing on Left Audio....Starting Testing\n");
-    //$display("left sample count = %d\n",cin_lft);
     if ((lft_sample_count < min_sample_count) || (lft_sample_count > max_sample_count)) begin
       lft_freq_errors = lft_freq_errors + 1;
       $display("Erroneous Left Sample Count at Sample %d = %d\n",cin_lft,lft_sample_count);
@@ -189,9 +186,8 @@ always@(posedge zero_crossing_rht) begin
   //Do not consider zero crossings that 
   //(1) occurs before test start 
   //(2) occurs before second proper neg to pos crossing
-  if (zero_crossing_count_rht > 1) begin  
+  if (zero_crossing_count_rht > 2) begin  
     $display("Zero Crossing on Right Audio....Starting Testing\n");
-    //$display("right sample count = %d\n",cin_rht);
     if ((rht_sample_count < min_sample_count) || (rht_sample_count > max_sample_count)) begin
       rht_freq_errors = rht_freq_errors + 1;
       $display("Erroneous Right Sample Count at Sample %d = %d\n",cin_rht,rht_sample_count);
@@ -221,14 +217,14 @@ initial begin
   zero_crossing_count_lft = 0;
   zero_crossing_count_rht = 0;
 
-  smooth_flops = 50;
-  testing_sample_count = 900;  //generate approx 1 full periods
-  min_sample_count = 573;
-  ideal_sample_count = 763; //not used, (24414 Hz / 160 Hz) = 153
-  max_sample_count = 953;
-  min_ampl = 2400;
-  ideal_ampl = 3200; //not used
-  max_ampl = 4000;
+  smooth_flops = 5;
+  testing_sample_count = 800;  //generate approx 4 full periods
+  min_sample_count = 115;
+  ideal_sample_count = 153; //not used, (24414 Hz / 160 Hz) = 153
+  max_sample_count = 185;
+  min_ampl = 9600;
+  ideal_ampl = 12800; //not used
+  max_ampl = 16000;
 
   clk = 1'b0;
   RST_n = 1'b0;

@@ -1,4 +1,4 @@
-module Equalizer_tb_LP_mixaudio();
+module Equalizer_tb_LPMax_mixaudio();
 
 //This testbench tests the frequency and amplitude for the case when: 
 //only filter LP is enabled (0 to 64Hz) with unity gain(0x800) and volume is at unity (0x800)
@@ -194,7 +194,7 @@ always@(posedge zero_crossing_rht) begin
     //$display("right sample count = %d\n",cin_rht);
     if ((rht_sample_count < min_sample_count) || (rht_sample_count > max_sample_count)) begin
       rht_freq_errors = rht_freq_errors + 1;
-      $display("Erroneous Right Sample Count at Sample %d = %d\n",cin_rht,rht_sample_count);
+      $display("Erroneous Right Sample Count at Sample %d = %d\n",cin_rht,rht_sample_count,max_rht_ampl);
     end
 
     if ((max_rht_ampl < min_ampl) || (max_rht_ampl > max_ampl)) begin
@@ -226,9 +226,9 @@ initial begin
   min_sample_count = 573;
   ideal_sample_count = 763; //not used, (24414 Hz / 160 Hz) = 153
   max_sample_count = 953;
-  min_ampl = 2400;
-  ideal_ampl = 3200; //not used
-  max_ampl = 4000;
+  min_ampl = 9600;
+  ideal_ampl = 12800; //not used
+  max_ampl = 16000;
 
   clk = 1'b0;
   RST_n = 1'b0;
