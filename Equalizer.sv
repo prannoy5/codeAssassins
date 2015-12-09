@@ -37,7 +37,7 @@ rst_synch iRST(.clk(clk),.RST_n(RST_n),.rst_n(rst_n));
 ////////////////////////////////
 // Instantiate A2D Interface //
 //////////////////////////////
-A2D_intf_P iA2D(.clk(clk),.rst_n(rst_n),.strt_cnv(strt_cnv),.cnv_cmplt(cnv_cmplt),.chnnl(chnnl),.res(res),
+A2D_intf iA2D(.clk(clk),.rst_n(rst_n),.strt_cnv(strt_cnv),.cnv_cmplt(cnv_cmplt),.chnnl(chnnl),.res(res),
               .a2d_SS_n(A2D_SS_n),.SCLK(A2D_SCLK),.MOSI(A2D_MOSI),.MISO(A2D_MISO));
 			  
 ///////////////////////////////////////////
