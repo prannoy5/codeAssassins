@@ -1,0 +1,9 @@
+-html
+-htmldir
+covhtmlreport_tb_B3_mixaudio
+-verbose
+-threshL
+50
+-threshH
+90
+tb_B3_mixaudio.ucdb

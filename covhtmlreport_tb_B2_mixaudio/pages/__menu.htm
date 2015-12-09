@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  <title>ModelSim Coverage Report</title>
+  <link type="text/css" rel="StyleSheet" href="../css/mtitree.css"/>
+  <link type="text/css" rel="StyleSheet" href="../css/ucdb2html.css"/>
+  <link type="text/css" rel="StyleSheet" href="../css/ucdb2html_newlook.css"/>
+  <script type="text/javascript" src="../scripts/mtitree.js"></script>
+  <script type="text/javascript" src="../scripts/jquery.js"></script>
+  <script type="text/javascript" src="../scripts/jquery.color.js"></script>
+  <script type="text/javascript">
+  <!--
+	var fristTimeToLoad = 0;
+  function openAll() {
+    if (document.getElementById('pane1').style.display != 'none') t.openAll();
+    if (document.getElementById('pane2').style.display != 'none') d.openAll();
+    if (document.getElementById('pane3').style.display != 'none') u.openAll();
+  }
+  function closeAll() {
+    if (document.getElementById('pane1').style.display != 'none') t.closeAll();
+    if (document.getElementById('pane2').style.display != 'none') d.closeAll();
+    if (document.getElementById('pane3').style.display != 'none') u.closeAll();
+  }
+  function disableAll() {
+    document.getElementById('pane1').style.display='none';
+    document.getElementById('pane2').style.display='none';
+    document.getElementById('pane3').style.display='none';
+  }
+  function buttonsOff() {
+    document.getElementById('button1').className='button_off1';
+    document.getElementById('button2').className='button_off1';
+    document.getElementById('button3').className='button_off1';
+    
+    $('#button1').animate({ backgroundColor: '#696969', color: "a9a9a9" }, 200);
+    $('#button2').animate({ backgroundColor: '#696969', color: "a9a9a9" }, 200);
+    $('#button3').animate({ backgroundColor: '#696969', color: "a9a9a9" }, 200);
+  }
+  function drawTo(c) {
+    switch (c) {
+      case 1: t.drawTreeTo(document.getElementById('pane1')); break;
+      case 2: d.drawTreeTo(document.getElementById('pane2')); break;
+      case 3: u.drawTreeTo(document.getElementById('pane3')); break;
+    }
+  }
+  function select(c) {
+    disableAll(); document.getElementById('pane'   + c).style.display='';
+    $('#pane' + c).hide();
+    $('#pane' + c).show(500);
+    buttonsOff(); document.getElementById('button' + c).className='button_on1';
+    $('#button' + c).animate({ backgroundColor: "blue", color: "white" }, 200);    setTimeout('drawTo(' + c + ')', 500);
+	 openpage(c);
+  }
+	  function openpage (c) {
+		var page;
+		if (c == 1) {
+			var i = 1;
+			while(t.aNodes[i].url == '')
+				i=i+1;
+			page = t.aNodes[i].url;
+		}
+		else if (c == 2) {
+			var i = 1;
+			while(d.aNodes[i].url == '')
+				i=i+1;
+			page = d.aNodes[i].url;
+		}
+		else {
+			var i = 1;
+			while(u.aNodes[i].url == '')
+				i=i+1;
+			page = u.aNodes[i].url;
+		}
+		if (fristTimeToLoad == 1) //frist time to load the page
+			window.open(page,'text');
+		if(fristTimeToLoad == 0)
+			fristTimeToLoad =1;
+	  }
+  // -->
+  </script>
+</head>
+<body>
+  <table class="buttons" cellspacing="2" cellpadding="2" width="100%"><tr>
+    <td width="75" class="button_off1" id="button1"
+        title="Select testplan tree" onclick="select('1')">Testplan</td>
+    <td width="75" class="button_off1" id="button2"
+        title="Select design tree" onclick="select('2')">Design</td>
+    <td width="75" class="button_off1" id="button3"
+        title="Select design unit list" onclick="select('3')">DesUnits</td>
+    <td class="invisible">&nbsp;</td><!-- spacer -->
+  </tr></table><hr/>
+  <div class="pane" id="pane1" style="display:none;">
+  <script type="text/javascript">
+  <!--
+    t = new Tree('t');
+    
+    if (t.length() > 0) {
+      document.getElementById('pane1').style.display='';
+      document.getElementById('button1').className='button_on1';
+      document.write(t);
+    }
+  //-->
+  </script>
+  </div>
+  <div class="pane" id="pane2" style="display:none;">
+  <script type="text/javascript">
+  <!--
+    d = new Tree('d');
+    d.add(1, 0, 'Equalizer_tb_B2_mixaudio', 'z0250695856_3902310870_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(2, 1, 'eq', 'z3827142749_1184132047_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(3, 2, 'iRST', 'z2297478268_1180350129_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(4, 2, 'iA2D', 'z2297460892_1180317261_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(5, 4, 'iDUT', 'z1680212366_2192606998_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(6, 2, 'iSLD', 'z2297478996_1180351661_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(7, 2, 'iCS', 'z2152321714_0227215276_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(8, 2, 'iCore', 'z2501930726_3509276036_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(9, 8, 'lft_q1024', 'z3422961993_0535417975_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(10, 9, 'ram', 'z4048662962_2522761023_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(11, 8, 'lft_q1536', 'z3422966831_0535427265_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(12, 11, 'ram', 'z4221690269_4218651360_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(13, 8, 'lft_LP', 'z2570520006_3532156185_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(14, 13, 'rom_lp', 'z1398590003_2312736556_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(15, 13, 'filter', 'z1049489240_0528081457_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(16, 8, 'lft_B1', 'z2570519665_3532155724_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(17, 16, 'rom_b1', 'z4100708614_3898347840_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(18, 16, 'filter', 'z3751608224_2113693234_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(19, 8, 'lft_B2', 'z2570519666_3532155725_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(20, 19, 'rom_b2', 'z1548551689_0839053092_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(21, 19, 'filter', 'z1199451298_3349365764_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(22, 8, 'lft_B3', 'z2570519667_3532155726_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(23, 22, 'rom_b3', 'z3291362055_2074725623_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(24, 22, 'filter', 'z2942261663_0290071015_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(25, 8, 'lft_HP', 'z2570519882_3532156013_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(26, 25, 'rom_hp', 'z0038469169_0230457895_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(27, 25, 'filter', 'z3984335821_2740770247_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(28, 8, 'lft_scale_lp', 'z0126454960_1584000881_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(29, 8, 'lft_scale_B1', 'z0126453595_1583999012_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(30, 8, 'lft_scale_B2', 'z0126453596_1583999013_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(31, 8, 'lft_scale_B3', 'z0126453597_1583999014_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(32, 8, 'lft_scale_HP', 'z0126453812_1583999301_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(33, 8, 'rht_q1024', 'z0358829206_3982697129_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(34, 33, 'ram', 'z3812362777_1929468217_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(35, 8, 'rht_q1536', 'z0358834044_3982706419_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(36, 35, 'ram', 'z3985390084_3625358554_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(37, 8, 'rht_LP', 'z2744141954_0126077166_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(38, 37, 'rom_lp', 'z1162289818_1719443750_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(39, 37, 'filter', 'z0813189055_4229755930_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(40, 8, 'rht_B1', 'z2744141613_0126076705_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(41, 40, 'rom_b1', 'z3864408429_3305055034_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(42, 40, 'filter', 'z3515308039_1520400428_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(43, 8, 'rht_B2', 'z2744141614_0126076706_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(44, 43, 'rom_b2', 'z1312251504_0245760286_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(45, 43, 'filter', 'z0963151113_2756072958_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(46, 8, 'rht_B3', 'z2744141615_0126076707_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(47, 46, 'rom_b3', 'z3055061870_1481432817_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(48, 46, 'filter', 'z2705961478_3991745488_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(49, 8, 'rht_HP', 'z2744141830_0126076994_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(50, 49, 'rom_hp', 'z4097136275_3932132368_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(51, 49, 'filter', 'z3748035636_2147477441_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(52, 8, 'rht_scale_lp', 'z1781400357_1070788574_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(53, 8, 'rht_scale_B1', 'z1781398992_1070786705_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(54, 8, 'rht_scale_B2', 'z1781398993_1070786706_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(55, 8, 'rht_scale_B3', 'z1781398994_1070786707_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(56, 8, 'rht_scale_HP', 'z1781399209_1070786994_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(57, 8, 'lft_scale_vol', 'z3920113447_3687547253_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(58, 8, 'rht_scale_vol', 'z3683813262_3094254447_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(59, 8, 'lft_scale_vol_final', 'z4176517682_3884357273_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(60, 8, 'rht_scale_vol_final', 'z2983032207_0991433975_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(61, 8, 'q_LED', 'z2719689119_1097435135_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(62, 61, 'ram', 'z1734538628_0724681790_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(63, 8, 'led_avg', 'z2333324923_1357192497_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(64, 1, 'codec', 'z0206121279_1097097875_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+d.add(65, 1, 'idut2', 'z0211351457_1116768133_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+d.add(66, 65, 'iSPI', 'z2774035991_2037805559_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+
+    if ((d.length() > 0) && (t.length() < 1)) {
+      document.getElementById('pane2').style.display='';
+      document.getElementById('button2').className='button_on1';
+      document.write(d);
+    }
+  //-->
+  </script>
+  </div>
+  <div class="pane" id="pane3" style="display:none;">
+  <script type="text/javascript">
+  <!--
+    u = new Tree('u');
+    u.add(1, 0, 'work.Equalizer_tb_B2_mixaudio', 'z2227214031_4249274884_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(2, 0, 'work.Equalizer', 'z3103992405_0899222663_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(3, 0, 'work.rst_synch', 'z1625786029_4099874928_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(4, 0, 'work.A2D_intf', 'z2729756567_3237206367_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(5, 0, 'work.SPI_mstr', 'z0739181229_1107208927_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(6, 0, 'work.slide_intf', 'z0452065069_0448765443_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(7, 0, 'work.codec_intf', 'z3174523692_3411067331_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(8, 0, 'work.core', 'z1044889666_2556431783_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(9, 0, 'work.queue_LED', 'z2812343416_3534966828_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(10, 0, 'work.LED_avg', 'z2497345645_2085819538_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(11, 0, 'work.CS4272', 'z2467704505_1868309224_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(12, 0, 'work.ADC128S', 'z1293769569_1116128308_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(13, 0, 'work.SPI_ADC128S', 'z3157493956_3751651058_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(14, 0, 'work.queue1024', 'z2810945517_3531256901_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(15, 0, 'work.dualPort1024x16', 'z0841451736_0194287384_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(16, 0, 'work.queue1536', 'z2810950355_3531266191_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(17, 0, 'work.dualPort1536x16', 'z0985580594_0932907414_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(18, 0, 'work.LP_FIR', 'z2723897124_3184585395_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(19, 0, 'work.ROM_LP', 'z2894236387_4061832478_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(20, 0, 'work.CORE_FIR', 'z2264671874_2017878049_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(21, 0, 'work.B1_FIR', 'z2408976463_1608518134_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(22, 0, 'work.ROM_B1', 'z2894236046_4061832017_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(23, 0, 'work.B2_FIR', 'z2409899984_1611936935_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(24, 0, 'work.ROM_B2', 'z2894236047_4061832018_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(25, 0, 'work.B3_FIR', 'z2410823505_1615355736_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(26, 0, 'work.ROM_B3', 'z2894236048_4061832019_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(27, 0, 'work.HP_FIR', 'z2609380520_2596551623_0.htm', '', '../icons/square-ltBlue.png', 'SystemVerilog', false, 'node','nodeSel');
+u.add(28, 0, 'work.ROM_HP', 'z2894236263_4061832306_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(29, 0, 'work.band_scale', 'z2170044356_3949863792_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(30, 0, 'work.band_scale_sum', 'z2554021071_0257754990_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+u.add(31, 0, 'work.vol_scale', 'z1798870085_2206393446_0.htm', '', '../icons/square-ltBlue.png', 'Verilog', false, 'node','nodeSel');
+
+    // document.write(u);
+  //-->
+  if (document.getElementById('button1').className == 'button_on1') select("1");
+  else if (document.getElementById('button2').className == 'button_on1') select("2");
+  else select("3");
+  </script>
+  <h3>Loading...</h3>
+  </div>
+</body>
+</html>

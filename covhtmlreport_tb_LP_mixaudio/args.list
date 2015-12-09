@@ -1,0 +1,9 @@
+-html
+-htmldir
+covhtmlreport_tb_LP_mixaudio
+-verbose
+-threshL
+50
+-threshH
+90
+tb_LP_mixaudio.ucdb
