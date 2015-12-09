@@ -1,0 +1,9 @@
+-html
+-htmldir
+covhtmlreport_tb_all
+-verbose
+-threshL
+50
+-threshH
+90
+tb_all.ucdb
