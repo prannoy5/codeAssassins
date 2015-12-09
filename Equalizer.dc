@@ -1,4 +1,4 @@
-read_file -format sverilog {Equalizer.sv core.sv A2D_intf.sv band_scale.v band_scale_sum.v \
+read_file -format sverilog {Equalizer.sv core.sv A2D_intf.sv band_scale.v band_scale_sum.v vol_scale.v\
                             codec_intf.sv FIR_core.sv FIR_LP.sv FIR_B1.sv FIR_B2.sv FIR_B3.sv FIR_HP.sv \
                             ROM_LP.v ROM_B1.v ROM_B2.v ROM_B3.v ROM_HP.v queue1024.sv queue1536.sv \
                             dualPort1024x16.v dualPort1536x16.v rst_synch.v slide_intf.sv SPI_mstr.sv}
