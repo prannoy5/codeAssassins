@@ -222,9 +222,9 @@ initial begin
   min_sample_count = 3;
   ideal_sample_count = 5; //not used, (48828 Hz / 10000 Hz) = 5
   max_sample_count = 7;
-  min_ampl = 3000;
-  ideal_ampl = 4000; //not used
-  max_ampl = 5000;
+  min_ampl = 375;
+  ideal_ampl = 500; //not used
+  max_ampl = 625;
 
   clk = 1'b0;
   RST_n = 1'b0;

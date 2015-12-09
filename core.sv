@@ -216,13 +216,13 @@ always@(posedge clk, negedge rst_n)
   end
 
 
-band_scale lft_scale_vol_final(.pot(VOL_pot),
+vol_scale lft_scale_vol_final(.pot(VOL_pot),
                                .clk(clk),
                                .audio(lft_sum_out_buf),
                                .scaled(lft_out)
                               );
 
-band_scale rht_scale_vol_final(.pot(VOL_pot),
+vol_scale rht_scale_vol_final(.pot(VOL_pot),
                                .clk(clk),
                                .audio(rht_sum_out_buf),
                                .scaled(rht_out)
