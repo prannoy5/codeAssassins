@@ -126,9 +126,9 @@ initial begin
 
   $display("Zero Crossing on Left Audio....Starting Counting\n");
   for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin
-    @(aout_lft_smooth); 
     #1 lft_sample_count = lft_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_lft_ampl = (aout_lft_smooth > max_lft_ampl) ? aout_lft_smooth : max_lft_ampl;
+    @(aout_lft_smooth); 
   end
 end
 
@@ -138,9 +138,9 @@ initial begin
 
   $display("Zero Crossing on Right Audio....Starting Counting\n");
   for(cin_rht = 0; cin_rht < testing_sample_count; cin_rht++) begin
-    @(aout_rht_smooth); 
     #1 rht_sample_count = rht_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_rht_ampl = (aout_rht_smooth > max_rht_ampl) ? aout_rht_smooth : max_rht_ampl;
+    @(aout_rht_smooth); 
   end
   $display("Number of right audio frequency errors = %d\n",rht_freq_errors);
   $display("Number of right audio amplitude errors = %d\n",rht_ampl_errors);
@@ -153,16 +153,16 @@ end
 //Count max amplitude at zero crossing time
 always@(posedge zero_crossing_lft) begin
 
-  //$display("Left Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_lft,aout_lft,zero_crossing_count_lft);
+  //$display("Left Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_lft,aout_lft_smooth,zero_crossing_count_lft);
 
   zero_crossing_count_lft = zero_crossing_count_lft + 1;
 
   //Do not consider zero crossings that 
   //(1) occurs before test start 
   //(2) occurs before second proper neg to pos crossing
-  if (zero_crossing_count_lft > 2) begin  
+  if (zero_crossing_count_lft > 1) begin  
     $display("Zero Crossing on Left Audio....Starting Testing\n");
-    $display("left sample count = %d\n",cin_lft);
+    //$display("left sample count = %d\n",cin_lft);
     if ((lft_sample_count < min_sample_count) || (lft_sample_count > max_sample_count)) begin
       lft_freq_errors = lft_freq_errors + 1;
       $display("Erroneous Left Sample Count at Sample %d = %d\n",cin_lft,lft_sample_count);
@@ -183,18 +183,18 @@ end
 //Count max amplitude at zero crossing time
 always@(posedge zero_crossing_rht) begin
 
-  //$display("Right Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_rht,aout_rht,zero_crossing_count_rht);
+  //$display("Right Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_rht,aout_rht_smooth,zero_crossing_count_rht);
   zero_crossing_count_rht = zero_crossing_count_rht + 1;
 
   //Do not consider zero crossings that 
   //(1) occurs before test start 
   //(2) occurs before second proper neg to pos crossing
-  if (zero_crossing_count_rht > 2) begin  
+  if (zero_crossing_count_rht > 1) begin  
     $display("Zero Crossing on Right Audio....Starting Testing\n");
-    $display("right sample count = %d\n",cin_rht);
+    //$display("right sample count = %d\n",cin_rht);
     if ((rht_sample_count < min_sample_count) || (rht_sample_count > max_sample_count)) begin
       rht_freq_errors = rht_freq_errors + 1;
-      $display("Erroneous Right Sample Count at Sample %d = %d with Amplitude Max = %d\n",cin_rht,rht_sample_count,max_rht_ampl);
+      $display("Erroneous Right Sample Count at Sample %d = %d\n",cin_rht,rht_sample_count);
     end
 
     if ((max_rht_ampl < min_ampl) || (max_rht_ampl > max_ampl)) begin
@@ -222,7 +222,7 @@ initial begin
   zero_crossing_count_rht = 0;
 
   smooth_flops = 50;
-  testing_sample_count = 900;  //generate approx 1 full periods
+  testing_sample_count = 1200;  //generate approx 2 full periods
   min_sample_count = 400;
   ideal_sample_count = 600; //not used, (24414 Hz / 40 Hz) = 600
   max_sample_count = 800;

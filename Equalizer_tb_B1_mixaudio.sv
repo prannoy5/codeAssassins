@@ -124,10 +124,10 @@ assign zero_crossing_rht = ~aout_rht_smooth[15] & aout_rht_smooth_q[15];
 initial begin
   @(posedge zero_crossing_lft); //ignore first crossing as it is a x to 0 transition
   @(posedge zero_crossing_lft); //this one is the first proper crossing
-  for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin
-    @(aout_lft_smooth); 
+  for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin 
     #1 lft_sample_count = lft_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_lft_ampl = (aout_lft_smooth > max_lft_ampl) ? aout_lft_smooth : max_lft_ampl;
+    @(aout_lft_smooth);
   end
 end
 
@@ -136,9 +136,9 @@ initial begin
   @(posedge zero_crossing_rht); //ignore first crossing as it is a x to 0 transition
   @(posedge zero_crossing_rht); //this one is the first proper crossing
   for(cin_rht = 0; cin_rht < testing_sample_count; cin_rht++) begin
-    @(aout_rht_smooth); 
     #1 rht_sample_count = rht_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_rht_ampl = (aout_rht_smooth > max_rht_ampl) ? aout_rht_smooth : max_rht_ampl;
+    @(aout_rht_smooth); 
   end
   $display("Number of right audio frequency errors = %d\n",rht_freq_errors);
   $display("Number of right audio amplitude errors = %d\n",rht_ampl_errors);

@@ -125,9 +125,9 @@ initial begin
   @(posedge zero_crossing_lft); //ignore first crossing as it is a 0 to x transition
   @(posedge zero_crossing_lft); //this one is the first proper crossing
   for(cin_lft = 0; cin_lft < testing_sample_count; cin_lft++) begin
-    @(aout_lft_smooth); 
-    #1 lft_sample_count = lft_sample_count + 1; 
+    #1 lft_sample_count = lft_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_lft_ampl = (aout_lft_smooth > max_lft_ampl) ? aout_lft_smooth : max_lft_ampl;
+    @(aout_lft_smooth); 
   end
 end
 
@@ -136,9 +136,9 @@ initial begin
   @(posedge zero_crossing_rht); //ignore first crossing as it is a 0 to x transition
   @(posedge zero_crossing_rht); //this one is the first proper crossing
   for(cin_rht = 0; cin_rht < testing_sample_count; cin_rht++) begin
-    @(aout_rht_smooth); 
-    #1 rht_sample_count = rht_sample_count + 1; 
+    #1 rht_sample_count = rht_sample_count + 1; //delay here to avoid conflict with set to 0 from another block
     max_rht_ampl = (aout_rht_smooth > max_rht_ampl) ? aout_rht_smooth : max_rht_ampl;
+    @(aout_rht_smooth); 
   end
   $display("Number of right audio frequency errors = %d\n",rht_freq_errors);
   $display("Number of right audio amplitude errors = %d\n",rht_ampl_errors);
@@ -151,7 +151,7 @@ end
 //Count max amplitude at zero crossing time
 always@(posedge zero_crossing_lft) begin
 
-  //$display("Left Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_lft,aout_lft,zero_crossing_count_lft);
+  //$display("Left Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_lft,aout_lft_smooth,zero_crossing_count_lft);
 
   zero_crossing_count_lft = zero_crossing_count_lft + 1;
 
@@ -180,7 +180,7 @@ end
 //Count max amplitude at zero crossing time
 always@(posedge zero_crossing_rht) begin
 
-  //$display("Right Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_rht,aout_rht,zero_crossing_count_rht);
+  //$display("Right Neg to Pos Crossing Found at Sample Num %d, Data %d and Count is %d\n",cin_rht,aout_rht_smooth,zero_crossing_count_rht);
   zero_crossing_count_rht = zero_crossing_count_rht + 1;
 
   //Do not consider zero crossings that 

@@ -105,19 +105,18 @@ module ADC128S(clk,rst_n,SS_n,SCLK,MISO,MOSI);
     end
   
   initial
-    //$readmemh("LP/analog_LPpass_VolUnity.dat",analog_mem);	
+    $readmemh("LP/analog_LPpass_VolUnity.dat",analog_mem);	
     //$readmemh("B1/analog_B1pass_VolUnity.dat",analog_mem);		// read in representation of analog data
-    $readmemh("B2/analog_B2pass_VolUnity.dat",analog_mem);
+    //$readmemh("B2/analog_B2pass_VolUnity.dat",analog_mem);
     //$readmemh("B3/analog_B3pass_VolUnity.dat",analog_mem);
     //$readmemh("HP/analog_HPpass_VolUnity.dat",analog_mem);
     
     //$readmemh("LP/analog_LPpass_VolMax.dat",analog_mem);	
-    //$readmemh("HP/analog_HPpass_VolMax.dat",analog_mem);	
     //$readmemh("B1/analog_B1pass_VolMax.dat",analog_mem);	
     //$readmemh("B2/analog_B2pass_VolMax.dat",analog_mem);	
     //$readmemh("B3/analog_B3pass_VolMax.dat",analog_mem);	
+    //$readmemh("HP/analog_HPpass_VolMax.dat",analog_mem);	
   
-
   //assign A2D_data = {4'b0000,analog_mem[ptr*8+channel]};
   assign A2D_data = {4'b0000,analog_mem[channel]};
 

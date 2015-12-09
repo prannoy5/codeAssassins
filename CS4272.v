@@ -40,7 +40,7 @@ begin
   //$readmemh("B2/audio_in_f500_a1000.dat", audmem);
   //$readmemh("B3/audio_in_f2500_a1000.dat", audmem);
   //$readmemh("HP/audio_in_f10000_a1000.dat", audmem);
-  $readmemh("audio_in_eric.dat", audmem);
+  $readmemh("audio_in_mixed.dat", audmem);
 end
 
 /*-- Edge detection flops  --*/
