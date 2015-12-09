@@ -36,11 +36,11 @@ wire  newtrans, shiftout, shiftin;                // control signals
 initial 
 begin
   //$readmemh("LP/audio_in_f40_a1000.dat", audmem);
-  //$readmemh("B1/audio_in_f120_a1000.dat", audmem);
+  $readmemh("B1/audio_in_f120_a1000.dat", audmem);
   //$readmemh("B2/audio_in_f500_a1000.dat", audmem);
   //$readmemh("B3/audio_in_f2500_a1000.dat", audmem);
   //$readmemh("HP/audio_in_f10000_a1000.dat", audmem);
-  $readmemh("audio_in_mixed.dat", audmem);
+  //$readmemh("audio_in_mixed.dat", audmem);
 end
 
 /*-- Edge detection flops  --*/
