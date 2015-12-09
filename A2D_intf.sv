@@ -1,4 +1,4 @@
-module A2D_intf_P (clk,rst_n,strt_cnv,cnv_cmplt,chnnl,res,a2d_SS_n,SCLK,MOSI,MISO);
+module A2D_intf (clk,rst_n,strt_cnv,cnv_cmplt,chnnl,res,a2d_SS_n,SCLK,MOSI,MISO);
 
 input clk,rst_n,MISO,strt_cnv;
 input [2:0]chnnl;
